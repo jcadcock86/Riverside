@@ -330,9 +330,23 @@
     const bonusNet = bonusGross - penTotal;            // deduct penalties
     const totalPayout = basePay + bonusNet;            // = performancePay - penalties
     const overallHourly = clocked > 0 ? totalPayout / clocked : 0;
+const efficiency =
+  clocked > 0 ? (jobHoursTotal / clocked) * 100 : 0;
 
-    return { performancePay, jobHoursTotal, penTotal, clocked, rate, basePay, bonusGross, bonusNet, totalPayout, overallHourly };
-  }
+ return {
+  performancePay,
+  jobHoursTotal,
+  penTotal,
+  clocked,
+  rate,
+  basePay,
+  bonusGross,
+  bonusNet,
+  totalPayout,
+  overallHourly,
+  efficiency
+};
+
 
   function render(){
     const t = calc();
@@ -374,6 +388,14 @@
     // Summary
     const diff = t.clocked - t.jobHoursTotal;
     const hourlyClass = t.overallHourly >= t.rate ? "good" : "bad";
+<br><br>
+<b>Man-hour check</b><br>
+Job man-hours: <b>${t.jobHoursTotal.toFixed(2)}</b><br>
+Overall man-hours: <b>${t.clocked.toFixed(2)}</b><br>
+Job efficiency: 
+<b class="${efficiencyClass}">
+  ${t.efficiency.toFixed(1)}%
+</b>
 
     $("summary").innerHTML = `
       Base pay (reference): <b>${money(t.basePay)}</b><br>
@@ -386,6 +408,10 @@
       <b>Overall hourly pay:</b> <b class="${hourlyClass}">${money(t.overallHourly)}/hr</b>
       <br><br>
       Hours check — Clocked: ${t.clocked.toFixed(2)} | Job hours: ${t.jobHoursTotal.toFixed(2)} | Diff: ${diff.toFixed(2)}
+      const efficiencyClass =
+  t.efficiency >= 95 ? "good" :
+  t.efficiency >= 85 ? "muted" : "bad";
+
     `;
   }
 
@@ -590,5 +616,7 @@ refreshRunList();
 </script>
 </body>
 </html>
+
+
 
 
