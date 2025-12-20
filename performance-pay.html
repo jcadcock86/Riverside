@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Performance Pay Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+  body{
+    margin:0;
+    background:#0b0c10;
+    color:#eef1f7;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+    padding:16px;
+  }
+  .wrap{max-width:1200px;margin:auto}
+  .card{
+    background:#14161c;
+    border:1px solid #242836;
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:12px;
+  }
+  .row{
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    gap:10px;
+    align-items:end;
+  }
+  label{font-size:12px;color:#a7adbb;margin-bottom:6px;display:block}
+  input{
+    width:100%;
+    padding:10px;
+    border-radius:10px;
+    border:1px solid #242836;
+    background:#0f1117;
+    color:#eef1f7;
+  }
+  button{
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid #242836;
+    background:#1a2030;
+    color:#fff;
+    cursor:pointer;
+  }
+  button.secondary{background:#0f1117}
+  button.small{padding:6px 10px}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+    border-radius:12px;
+    overflow:hidden;
+  }
+  th,td{
+    border-bottom:1px solid #242836;
+    padding:10px;
+    font-size:13px;
+  }
+  th{background:#10131b;color:#a7adbb;text-align:left}
+  .right{text-align:right}
+  .muted{color:#a7adbb}
+  .good{color:#2ee59d}
+  .bad{color:#ff6b6b}
+  .btnbar{display:flex;gap:10px;flex-wrap:wrap}
+
+  @media print{
+    body{background:#fff;color:#000}
+    .card{background:#fff;border:1px solid #ddd}
+    .no-print{display:none}
+    th{background:#f3f3f3;color:#000}
+  }
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="row">
+      <div style="grid-column:span 4">
+        <label>Employee name</label>
+        <input id="emp">
+      </div>
+      <div style="grid-column:span 4">
+        <label>Pay period</label>
+        <input id="period">
+      </div>
+      <div style="grid-column:span 2">
+        <label>Base hourly rate</label>
+        <input id="rate" type="number" step="0.01">
+      </div>
+      <div style="grid-column:span 2">
+        <label>Overall clocked hours</label>
+        <input id="clocked" type="number" step="0.01">
+      </div>
+    </div>
+
+    <div class="btnbar no-print" style="margin-top:12px">
+      <button class="secondary" onclick="window.print()">Export / Print PDF</button>
+      <button class="secondary" onclick="resetAll()">Clear</button>
+    </div>
+  </div>
+
+  <div class="card no-print">
+    <div class="row">
+      <div style="grid-column:span 5">
+        <label>Job name / number</label>
+        <input id="jobName">
+      </div>
+      <div style="grid-column:span 2">
+        <label>Job amount</label>
+        <input id="jobAmount" type="number" step="0.01">
+      </div>
+      <div style="grid-column:span 2">
+        <label>Payout %</label>
+        <input id="jobPct" type="number" step="0.01">
+      </div>
+      <div style="grid-column:span 2">
+        <label>Job hours (compare only)</label>
+        <input id="jobHours" type="number" step="0.01">
+      </div>
+      <div style="grid-column:span 1">
+        <button onclick="addJob()" style="width:100%">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Job</th>
+          <th class="right">Job $</th>
+          <th class="right">%</th>
+          <th class="right">Perf Pay</th>
+          <th class="right">Hours</th>
+          <th class="right no-print"></th>
+        </tr>
+      </thead>
+      <tbody id="jobs"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <b>Summary</b>
+    <div id="summary" class="muted" style="margin-top:8px"></div>
+  </div>
+</div>
+
+<script>
+let jobs = [];
+
+const $ = id => document.getElementById(id);
+const money = n => new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(n||0);
+
+function addJob(){
+  const name = $("jobName").value.trim();
+  const amount = Number($("jobAmount").value);
+  const pct = Number($("jobPct").value)/100;
+  const hrs = Number($("jobHours").value);
+
+  if(!name) return alert("Enter job name");
+  if(amount<=0) return alert("Job amount must be > 0");
+
+  jobs.push({name,amount,pct,hrs});
+  $("jobName").value = $("jobAmount").value = $("jobPct").value = $("jobHours").value = "";
+  render();
+}
+
+function render(){
+  let perf = 0, jobHrs = 0;
+  $("jobs").innerHTML = "";
+
+  jobs.forEach((j,i)=>{
+    const p = j.amount*j.pct;
+    perf += p;
+    jobHrs += j.hrs;
+    $("jobs").innerHTML += `
+      <tr>
+        <td>${j.name}</td>
+        <td class="right">${money(j.amount)}</td>
+        <td class="right">${(j.pct*100).toFixed(2)}%</td>
+        <td class="right">${money(p)}</td>
+        <td class="right">${j.hrs.toFixed(2)}</td>
+        <td class="right no-print"><button class="small" onclick="jobs.splice(${i},1);render()">✕</button></td>
+      </tr>`;
+  });
+
+  const clocked = Number($("clocked").value);
+  const rate = Number($("rate").value);
+  const basePay = clocked * rate;
+  const bonus = perf - basePay;
+  const total = perf;
+  const hourly = clocked>0 ? total/clocked : 0;
+
+  $("summary").innerHTML = `
+    Base pay (reference): <b>${money(basePay)}</b><br>
+    Performance pay: <b>${money(perf)}</b><br>
+    Performance bonus: <b>${money(bonus)}</b><hr>
+    <b>Total payout:</b> ${money(total)}<br>
+    <b>Overall hourly pay:</b> ${money(hourly)}/hr<br><br>
+    Clocked: ${clocked||0} | Job hours: ${jobHrs.toFixed(2)}
+  `;
+}
+
+function resetAll(){
+  if(!confirm("Clear everything?")) return;
+  jobs=[];
+  document.querySelectorAll("input").forEach(i=>i.value="");
+  render();
+}
+</script>
+</body>
+</html>
