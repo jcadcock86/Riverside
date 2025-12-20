@@ -111,6 +111,8 @@
   <button class="secondary" type="button" onclick="downloadCSV()">Download CSV</button>
   <button class="secondary" type="button" onclick="downloadJSON()">Download JSON</button>
   <button class="secondary" type="button" onclick="resetAll()">Clear</button>
+  <button class="secondary" type="button" onclick="saveRun()">Save Run</button>
+
 </div>
 <div style="margin-top:10px" class="no-print">
   <label>Saved pay runs</label>
@@ -570,6 +572,7 @@ function refreshRunList(){
       select.appendChild(opt);
     });
 }
+refreshRunList();
 
 </script>
 </body>
