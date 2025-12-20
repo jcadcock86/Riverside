@@ -86,25 +86,32 @@
 <div class="wrap">
 
   <!-- Header -->
-  <div class="card">
-    <div class="row">
-      <div class="span4" style="grid-column:span 4">
-        <label>Employee name</label>
-        <input id="emp" placeholder="e.g., John Smith">
-      </div>
-      <div class="span4" style="grid-column:span 4">
-        <label>Pay period</label>
-        <input id="period" placeholder="e.g., 12/1–12/15">
-      </div>
-      <div class="span2" style="grid-column:span 2">
-        <label>Base hourly rate</label>
-        <input id="rate" type="number" step="0.01" min="0" placeholder="e.g., 22.50">
-      </div>
-      <div class="span2" style="grid-column:span 1">
-        <label>Overall clocked hours</label>
-        <input id="clocked" type="number" step="0.01" min="0" placeholder="e.g., 80">
-      </div>
-    </div>
+  <div class="row">
+  <!-- Employee -->
+  <div style="grid-column:span 4">
+    <label>Employee name</label>
+    <input id="emp" placeholder="e.g., John Smith">
+  </div>
+
+  <!-- Pay Period -->
+  <div style="grid-column:span 4">
+    <label>Pay period</label>
+    <input id="period" placeholder="e.g., 12/1 – 12/15">
+  </div>
+
+  <!-- Base Rate -->
+  <div style="grid-column:span 2; max-width:170px">
+    <label>Base rate</label>
+    <input id="rate" type="number" step="0.01" min="0" placeholder="$ / hr">
+  </div>
+
+  <!-- Clocked Hours -->
+  <div style="grid-column:span 2; max-width:150px">
+    <label>Clocked hours</label>
+    <input id="clocked" type="number" step="0.01" min="0" placeholder="hrs">
+  </div>
+</div>
+
 
    <div class="btnbar no-print" style="margin-top:12px">
   <button class="secondary" type="button" onclick="printPDF()">Export / Print PDF</button>
