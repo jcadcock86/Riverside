@@ -382,49 +382,110 @@
 </body>
 </html>
 
+function filenameBase(){
+  const emp = ($("emp").value || "").trim().replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "");
+  const per = ($("period").value || "").trim().replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "");
+  const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
+  const bits = ["performance-pay", emp || "employee", per || "period", stamp].filter(Boolean);
+  return bits.join("_");
+}
+
 function downloadCSV(){
   const t = calc();
 
-  let rows = [];
-  rows.push(["Employee", $("emp").value]);
-  rows.push(["Pay Period", $("period").value]);
+  // Build rows for a payroll-friendly export
+  const rows = [];
+  rows.push(["Employee", $("emp").value || ""]);
+  rows.push(["Pay Period", $("period").value || ""]);
   rows.push([]);
-  rows.push(["Base Rate", t.rate]);
-  rows.push(["Clocked Hours", t.clocked]);
+
+  rows.push(["Base Hourly Rate", t.rate]);
+  rows.push(["Overall Clocked Hours", t.clocked]);
+  rows.push(["Base Pay (reference)", t.basePay]);
   rows.push(["Performance Pay", t.performancePay]);
-  rows.push(["Total Penalties", t.penTotal]);
+  rows.push(["Penalties Total", t.penTotal]);
+  rows.push(["Performance Bonus (gross)", t.bonusGross]);
+  rows.push(["Performance Bonus (net)", t.bonusNet]);
   rows.push(["Total Payout", t.totalPayout]);
   rows.push(["Overall Hourly Pay", t.overallHourly]);
   rows.push([]);
 
-  rows.push(["Jobs"]);
-  rows.push(["Job","Job Amount","Payout %","Performance Pay","Job Hours"]);
-  jobs.forEach(j=>{
+  rows.push(["JOBS"]);
+  rows.push(["Job", "Job Amount", "Payout %", "Performance Pay", "Job Hours (compare only)"]);
+  jobs.forEach(j => {
     rows.push([
       j.name,
       j.amount,
-      (j.pct*100).toFixed(2)+"%",
-      (j.amount*j.pct),
+      (j.pct * 100).toFixed(2) + "%",
+      (j.amount * j.pct),
       j.hrs
     ]);
   });
 
   rows.push([]);
-  rows.push(["Penalties"]);
-  rows.push(["Note","Amount"]);
-  penalties.forEach(p=>{
-    rows.push([p.note,p.amount]);
+  rows.push(["PENALTIES"]);
+  rows.push(["Note", "Amount"]);
+  penalties.forEach(p => {
+    rows.push([p.note, p.amount]);
   });
 
-  const csv = rows.map(r=>r.map(v=>`"${v ?? ""}"`).join(",")).join("\n");
+  const csv = rows.map(r =>
+    r.map(v => `"${String(v ?? "").replace(/"/g,'""')}"`).join(",")
+  ).join("\n");
 
-  const blob = new Blob([csv], {type:"text/csv"});
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
 
   const a = document.createElement("a");
   a.href = url;
-  a.download = `performance-pay-${Date.now()}.csv`;
+  a.download = `${filenameBase()}.csv`;
+  document.body.appendChild(a);
   a.click();
+  a.remove();
+
   URL.revokeObjectURL(url);
 }
 
+function downloadJSON(){
+  const t = calc();
+
+  const payload = {
+    employee: ($("emp").value || "").trim(),
+    payPeriod: ($("period").value || "").trim(),
+    baseHourlyRate: t.rate,
+    overallClockedHours: t.clocked,
+    totals: {
+      basePayReference: t.basePay,
+      performancePay: t.performancePay,
+      penaltiesTotal: t.penTotal,
+      performanceBonusGross: t.bonusGross,
+      performanceBonusNet: t.bonusNet,
+      totalPayout: t.totalPayout,
+      overallHourlyPay: t.overallHourly
+    },
+    jobs: jobs.map(j => ({
+      name: j.name,
+      jobAmount: j.amount,
+      payoutPercent: +(j.pct * 100).toFixed(4),
+      performancePay: +(j.amount * j.pct).toFixed(2),
+      jobHoursCompareOnly: j.hrs
+    })),
+    penalties: penalties.map(p => ({
+      note: p.note,
+      amount: p.amount
+    })),
+    generatedAt: new Date().toISOString()
+  };
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${filenameBase()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  URL.revokeObjectURL(url);
+}
