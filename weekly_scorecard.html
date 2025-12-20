@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Weekly Service Business KPI Scorecard</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  .container {
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 6px;
+  }
+  .section {
+    margin-bottom: 30px;
+  }
+  .section h2 {
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 5px;
+  }
+  label {
+    display: block;
+    margin-top: 10px;
+  }
+  input {
+    width: 100%;
+    padding: 6px;
+    margin-top: 4px;
+  }
+  button {
+    margin-top: 20px;
+    padding: 12px;
+    width: 100%;
+    font-size: 16px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #0056b3;
+  }
+  .results {
+    margin-top: 30px;
+    padding: 15px;
+    border-radius: 4px;
+  }
+  .green { background: #d4edda; }
+  .yellow { background: #fff3cd; }
+  .red { background: #f8d7da; }
+</style>
+</head>
+
+<body>
+
+<h1>Weekly KPI Scorecard</h1>
+
+<div class="container">
+
+  <div class="section">
+    <h2>Company-Level Inputs (Weekly)</h2>
+    <label>Total Revenue ($)</label>
+    <input id="revenue" type="number">
+
+    <label>Total Labor Cost ($)</label>
+    <input id="labor" type="number">
+
+    <label>Materials + Fuel Cost ($)</label>
+    <input id="materials" type="number">
+
+    <label>Overhead Cost ($)</label>
+    <input id="overhead" type="number">
+
+    <label>Jobs Completed</label>
+    <input id="jobs" type="number">
+
+    <label>New Recurring Accounts Added</label>
+    <input id="recurringNew" type="number">
+
+    <label>Recurring Accounts Lost</label>
+    <input id="recurringLost" type="number">
+  </div>
+
+  <div class="section">
+    <h2>Truck-Level Summary</h2>
+    <label>Number of Trucks Running</label>
+    <input id="trucks" type="number" value="4">
+  </div>
+
+  <button onclick="calculate()">Calculate Weekly Scorecard</button>
+
+  <div id="output" class="results"></div>
+
+</div>
+
+<script>
+function statusClass(value, green, yellow){
+  if (value >= green) return "green";
+  if (value >= yellow) return "yellow";
+  return "red";
+}
+
+function calculate(){
+  const revenue = Number(document.getElementById("revenue").value);
+  const labor = Number(document.getElementById("labor").value);
+  const materials = Number(document.getElementById("materials").value);
+  const overhead = Number(document.getElementById("overhead").value);
+  const jobs = Number(document.getElementById("jobs").value);
+  const recurringNew = Number(document.getElementById("recurringNew").value);
+  const recurringLost = Number(document.getElementById("recurringLost").value);
+  const trucks = Number(document.getElementById("trucks").value);
+
+  const grossProfit = revenue - labor - materials;
+  const grossMargin = (grossProfit / revenue) * 100;
+  const netProfit = grossProfit - overhead;
+  const netMargin = (netProfit / revenue) * 100;
+
+  const avgTicket = revenue / jobs;
+  const revenuePerTruck = revenue / trucks;
+
+  const recurringNet = recurringNew - recurringLost;
+
+  const gmClass = statusClass(grossMargin, 55, 52);
+  const nmClass = statusClass(netMargin, 17, 15);
+  const revClass = statusClass(revenue, 31250, 28000);
+
+  document.getElementById("output").innerHTML = `
+    <h2>Weekly Results</h2>
+
+    <div class="${revClass}">
+      <strong>Total Revenue:</strong> $${revenue.toLocaleString()}<br>
+      Target: $31,250
+    </div><br>
+
+    <div class="${gmClass}">
+      <strong>Gross Margin:</strong> ${grossMargin.toFixed(1)}%<br>
+      Target: ≥ 55%
+    </div><br>
+
+    <div class="${nmClass}">
+      <strong>Net Margin:</strong> ${netMargin.toFixed(1)}%<br>
+      Target: ≥ 17%
+    </div><br>
+
+    <strong>Net Profit:</strong> $${netProfit.toLocaleString()}<br><br>
+
+    <strong>Average Ticket:</strong> $${avgTicket.toFixed(0)}<br>
+    <strong>Revenue per Truck:</strong> $${revenuePerTruck.toFixed(0)}<br><br>
+
+    <strong>Recurring Change:</strong> ${recurringNet} accounts<br>
+    Target: +3 to +5 per week
+  `;
+}
+</script>
+
+</body>
+</html>
