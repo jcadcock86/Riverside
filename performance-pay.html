@@ -379,4 +379,49 @@
 </body>
 </html>
 
+function downloadCSV(){
+  const t = calc();
+
+  let rows = [];
+  rows.push(["Employee", $("emp").value]);
+  rows.push(["Pay Period", $("period").value]);
+  rows.push([]);
+  rows.push(["Base Rate", t.rate]);
+  rows.push(["Clocked Hours", t.clocked]);
+  rows.push(["Performance Pay", t.performancePay]);
+  rows.push(["Total Penalties", t.penTotal]);
+  rows.push(["Total Payout", t.totalPayout]);
+  rows.push(["Overall Hourly Pay", t.overallHourly]);
+  rows.push([]);
+
+  rows.push(["Jobs"]);
+  rows.push(["Job","Job Amount","Payout %","Performance Pay","Job Hours"]);
+  jobs.forEach(j=>{
+    rows.push([
+      j.name,
+      j.amount,
+      (j.pct*100).toFixed(2)+"%",
+      (j.amount*j.pct),
+      j.hrs
+    ]);
+  });
+
+  rows.push([]);
+  rows.push(["Penalties"]);
+  rows.push(["Note","Amount"]);
+  penalties.forEach(p=>{
+    rows.push([p.note,p.amount]);
+  });
+
+  const csv = rows.map(r=>r.map(v=>`"${v ?? ""}"`).join(",")).join("\n");
+
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `performance-pay-${Date.now()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
