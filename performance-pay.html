@@ -388,14 +388,13 @@ const efficiency =
     // Summary
     const diff = t.clocked - t.jobHoursTotal;
     const hourlyClass = t.overallHourly >= t.rate ? "good" : "bad";
-<br><br>
-<b>Man-hour check</b><br>
-Job man-hours: <b>${t.jobHoursTotal.toFixed(2)}</b><br>
-Overall man-hours: <b>${t.clocked.toFixed(2)}</b><br>
-Job efficiency: 
-<b class="${efficiencyClass}">
-  ${t.efficiency.toFixed(1)}%
-</b>
+const diff = t.clocked - t.jobHoursTotal;
+const hourlyClass = t.overallHourly >= t.rate ? "good" : "bad";
+
+const efficiencyClass =
+  t.efficiency >= 95 ? "good" :
+  t.efficiency >= 85 ? "muted" : "bad";
+
 
     $("summary").innerHTML = `
       Base pay (reference): <b>${money(t.basePay)}</b><br>
@@ -407,7 +406,15 @@ Job efficiency:
       <b>Total payout:</b> ${money(t.totalPayout)}<br>
       <b>Overall hourly pay:</b> <b class="${hourlyClass}">${money(t.overallHourly)}/hr</b>
       <br><br>
-      Hours check — Clocked: ${t.clocked.toFixed(2)} | Job hours: ${t.jobHoursTotal.toFixed(2)} | Diff: ${diff.toFixed(2)}
+      <br><br>
+<b>Man-hour check</b><br>
+Job man-hours: <b>${t.jobHoursTotal.toFixed(2)}</b><br>
+Overall man-hours: <b>${t.clocked.toFixed(2)}</b><br>
+Job efficiency:
+<b class="${efficiencyClass}">
+  ${t.efficiency.toFixed(1)}%
+</b>
+
       const efficiencyClass =
   t.efficiency >= 95 ? "good" :
   t.efficiency >= 85 ? "muted" : "bad";
