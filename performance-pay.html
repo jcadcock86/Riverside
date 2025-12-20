@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <title>Performance Pay Calculator</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <style>
   body{
     margin:0;
-    background:#707074;
+    background:#0b0c10;
     color:#eef1f7;
     font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
     padding:16px;
   }
-  .wrap{max-width:1200px;margin:auto}
+
+  .wrap{ max-width:1200px; margin:auto; }
+
   .card{
     background:#14161c;
     border:1px solid #242836;
@@ -21,22 +23,33 @@
     padding:14px;
     margin-bottom:12px;
   }
-  .row{
-  display:grid;
-  grid-template-columns:repeat(12,1fr);
-  gap:14px;         
-  align-items:end;
 
+  .row{
+    display:grid;
+    grid-template-columns:repeat(12, 1fr);
+    gap:14px;              /* cleaner spacing between “bubbles” */
+    align-items:end;
   }
-  label{font-size:12px;color:#a7adbb;margin-bottom:8px;display:block}
-  input{
+
+  label{
+    display:block;
+    font-size:12px;
+    color:#a7adbb;
+    margin:0 0 6px;
+  }
+
+  input, select{
     width:100%;
     padding:10px;
-    border-radius:14px;
+    border-radius:12px;
     border:1px solid #242836;
     background:#0f1117;
     color:#eef1f7;
+    box-sizing:border-box;
   }
+
+  input[type="number"]{ text-align:right; }
+
   button{
     padding:10px 12px;
     border-radius:12px;
@@ -45,8 +58,11 @@
     color:#fff;
     cursor:pointer;
   }
-  button.secondary{background:#0f1117}
-  button.small{padding:6px 10px}
+  button.secondary{ background:#0f1117; color:#eef1f7; }
+  button.small{ padding:6px 10px; background:#0f1117; }
+
+  .btnbar{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+
   table{
     width:100%;
     border-collapse:collapse;
@@ -54,36 +70,42 @@
     border-radius:12px;
     overflow:hidden;
   }
-  th,td{
+  th, td{
     border-bottom:1px solid #242836;
     padding:10px;
     font-size:13px;
     vertical-align:top;
   }
-  th{background:#10131b;color:#a7adbb;text-align:left}
-  .right{text-align:right}
-  .muted{color:#a7adbb}
-  .good{color:#2ee59d}
-  .bad{color:#ff6b6b}
-  .btnbar{display:flex;gap:10px;flex-wrap:wrap}
-  
-@media (max-width:900px){
-   body{ padding:8px; }          
-  .wrap{ max-width:100%; }      
-  .span2,.span3,.span4,.span5,.span7{ grid-column:span 12 !important; }
-  .card{ padding:16px; }
-
-}
-
+  th{
+    background:#10131b;
+    color:#a7adbb;
+    text-align:left;
+    font-weight:600;
   }
 
+  .right{ text-align:right; }
+  .muted{ color:#a7adbb; }
+  .good{ color:#2ee59d; }
+  .bad{ color:#ff6b6b; }
+
+  /* MOBILE: make it feel wider/cleaner */
+  @media (max-width:900px){
+    body{ padding:8px; }
+    .wrap{ max-width:100%; }
+
+    /* If you still use any .span* classes elsewhere, they’ll stack */
+    .span2,.span3,.span4,.span5,.span7{grid-column:span 12 !important;}
+  }
+
+  /* PRINT/PDF */
   @media print{
-    body{background:#fff;color:#000}
-    .card{background:#fff;border:1px solid #ddd}
-    .no-print{display:none !important}
-    th{background:#f3f3f3;color:#000}
-    .muted{color:#444}
-    .good,.bad{color:#000}
+    body{ background:#fff; color:#000; padding:0; }
+    .wrap{ max-width:100%; }
+    .card{ background:#fff; border:1px solid #ddd; border-radius:0; }
+    .no-print{ display:none !important; }
+    th{ background:#f3f3f3; color:#000; }
+    .muted{ color:#444; }
+    .good,.bad{ color:#000; }
   }
 </style>
 </head>
@@ -91,84 +113,85 @@
 <body>
 <div class="wrap">
 
-  <!-- Header -->
-  <div class="row">
-  <!-- Employee -->
-  <div style="grid-column:span 4">
-    <label>Employee name</label>
-    <input id="emp" placeholder="e.g., John Smith">
-  </div>
+  <!-- HEADER -->
+  <div class="card">
+    <div class="row">
+      <div style="grid-column:span 4">
+        <label>Employee name</label>
+        <input id="emp" placeholder="e.g., John Smith" />
+      </div>
 
-  <!-- Pay Period -->
-  <div style="grid-column:span 4">
-    <label>Pay period</label>
-    <input id="period" placeholder="e.g., 12/1 – 12/15">
-  </div>
+      <div style="grid-column:span 4">
+        <label>Pay period</label>
+        <input id="period" placeholder="e.g., 12/1 – 12/15" />
+      </div>
 
-  <!-- Base Rate -->
-  <div style="grid-column:span 2; max-width:170px">
-    <label>Base rate</label>
-    <input id="rate" type="number" step="0.01" min="0" placeholder="$ / hr">
-  </div>
+      <div style="grid-column:span 2; max-width:170px">
+        <label>Base rate</label>
+        <input id="rate" type="number" step="0.01" min="0" placeholder="$ / hr" />
+      </div>
 
-  <!-- Clocked Hours -->
-  <div style="grid-column:span 2; max-width:150px">
-    <label>Clocked hours</label>
-    <input id="clocked" type="number" step="0.01" min="0" placeholder="hrs">
-  </div>
-</div>
+      <div style="grid-column:span 2; max-width:150px">
+        <label>Clocked hours</label>
+        <input id="clocked" type="number" step="0.01" min="0" placeholder="hrs" />
+      </div>
+    </div>
 
+    <div class="btnbar no-print">
+      <button class="secondary" type="button" onclick="printPDF()">Export / Print PDF</button>
+      <button class="secondary" type="button" onclick="downloadCSV()">Download CSV</button>
+      <button class="secondary" type="button" onclick="downloadJSON()">Download JSON</button>
+      <button class="secondary" type="button" onclick="saveRun()">Save Run</button>
+      <button class="secondary" type="button" onclick="resetAll()">Clear</button>
+    </div>
 
-   <div class="btnbar no-print" style="margin-top:12px">
-  <button class="secondary" type="button" onclick="printPDF()">Export / Print PDF</button>
-  <button class="secondary" type="button" onclick="downloadCSV()">Download CSV</button>
-  <button class="secondary" type="button" onclick="downloadJSON()">Download JSON</button>
-  <button class="secondary" type="button" onclick="resetAll()">Clear</button>
-  <button class="secondary" type="button" onclick="saveRun()">Save Run</button>
-
-</div>
-<div style="margin-top:10px" class="no-print">
-  <label>Saved pay runs</label>
-  <select id="savedRuns" onchange="loadRun(this.value)">
-    <option value="">— Select saved run —</option>
-  </select>
-  <div class="muted" style="margin-top:6px">
-    Saved locally in this browser
-  </div>
-</div>
-
-
+    <!-- Saved runs selector -->
+    <div class="no-print" style="margin-top:12px">
+      <label>Saved pay runs (edit throughout the week)</label>
+      <select id="savedRuns" onchange="loadRun(this.value)">
+        <option value="">— Select saved run —</option>
+      </select>
+      <div class="muted" style="margin-top:6px">
+        Saved locally in this browser/device.
+      </div>
     </div>
   </div>
 
-  <!-- Add Job -->
+  <!-- ADD JOB -->
   <div class="card no-print">
     <div class="row">
-      <div class="span5" style="grid-column:span 5">
-        <label>Job name / number</label>
-        <input id="jobName" placeholder="e.g., #1042 – Smith House">
+      <div style="grid-column:span 5">
+        <label>Job number / name</label>
+        <input id="jobName" placeholder="e.g., #1042 – Smith House" />
       </div>
-      <div class="span2" style="grid-column:span 2">
+
+      <div style="grid-column:span 2">
         <label>Job amount ($)</label>
-        <input id="jobAmount" type="number" step="0.01" min="0" placeholder="e.g., 5000">
+        <input id="jobAmount" type="number" step="0.01" min="0" placeholder="e.g., 5000" />
       </div>
-      <div class="span2" style="grid-column:span 2">
+
+      <div style="grid-column:span 2; max-width:160px">
         <label>Payout %</label>
-        <input id="jobPct" type="number" step="0.01" min="0" placeholder="e.g., 8">
+        <input id="jobPct" type="number" step="0.01" min="0" placeholder="e.g., 8" />
       </div>
-      <div class="span2" style="grid-column:span 2">
+
+      <div style="grid-column:span 2; max-width:180px">
         <label>Job hours (compare only)</label>
-        <input id="jobHours" type="number" step="0.01" min="0" placeholder="e.g., 12.5">
+        <input id="jobHours" type="number" step="0.01" min="0" placeholder="e.g., 12.5" />
       </div>
+
       <div style="grid-column:span 1">
         <button type="button" onclick="addJob()" style="width:100%">Add</button>
       </div>
     </div>
   </div>
 
-  <!-- Jobs Table -->
+  <!-- JOBS TABLE -->
   <div class="card">
-    <div class="muted">Performance Pay per job = <b>Job Amount × Payout %</b> (Job hours are comparison-only)</div>
+    <div class="muted">
+      Performance Pay per job = <b>Job Amount × Payout %</b> (Job hours are comparison-only)
+    </div>
+
     <table>
       <thead>
         <tr>
@@ -193,23 +216,25 @@
     </table>
   </div>
 
-  <!-- Penalties -->
+  <!-- PENALTIES -->
   <div class="card">
     <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;">
       <div><b>Infractions / Penalties</b> <span class="muted">(deducted from performance bonus)</span></div>
       <div class="muted">Total penalties: <b id="penTotalBadge">$0.00</b></div>
     </div>
 
-    <div class="row no-print" style="margin-top:10px">
-      <div class="span7" style="grid-column:span 7">
+    <div class="row no-print" style="margin-top:10px;">
+      <div style="grid-column:span 7">
         <label>Infraction / note</label>
-        <input id="penNote" placeholder="e.g., Late arrival, damaged material, callback...">
+        <input id="penNote" placeholder="e.g., Late arrival, damaged material, callback..." />
       </div>
-      <div class="span3" style="grid-column:span 3">
+
+      <div style="grid-column:span 3; max-width:220px">
         <label>Penalty amount ($)</label>
-        <input id="penAmount" type="number" step="0.01" min="0" placeholder="e.g., 25">
+        <input id="penAmount" type="number" step="0.01" min="0" placeholder="e.g., 25" />
       </div>
-      <div class="span2" style="grid-column:span 2">
+
+      <div style="grid-column:span 2">
         <button type="button" onclick="addPenalty()" style="width:100%">Add</button>
       </div>
     </div>
@@ -233,7 +258,7 @@
     </table>
   </div>
 
-  <!-- Summary -->
+  <!-- SUMMARY -->
   <div class="card">
     <b>Summary</b>
     <div id="summary" class="muted" style="margin-top:8px"></div>
@@ -242,23 +267,27 @@
 </div>
 
 <script>
+  // -----------------------
   // State
+  // -----------------------
   let jobs = [];
   let penalties = [];
 
   const $ = (id) => document.getElementById(id);
-  const money = (n) => new Intl.NumberFormat("en-US", { style:"currency", currency:"USD" }).format(Number(n || 0));
   const num = (v) => {
     const x = Number(v);
     return Number.isFinite(x) ? x : 0;
   };
+  const money = (n) => new Intl.NumberFormat("en-US", { style:"currency", currency:"USD" }).format(Number(n || 0));
   const esc = (s) =>
     String(s ?? "")
       .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
       .replaceAll('"',"&quot;").replaceAll("'","&#039;");
 
+  // -----------------------
+  // Core actions
+  // -----------------------
   function printPDF(){
-    // ensure current values are reflected before print
     render();
     window.print();
   }
@@ -280,7 +309,6 @@
     $("jobAmount").value = "";
     $("jobPct").value = "";
     $("jobHours").value = "";
-
     render();
   }
 
@@ -292,14 +320,12 @@
   function addPenalty(){
     const note = $("penNote").value.trim();
     const amount = num($("penAmount").value);
-
     if (amount <= 0) return alert("Penalty amount must be > 0.");
 
     penalties.push({ note: note || "Penalty", amount });
 
     $("penNote").value = "";
     $("penAmount").value = "";
-
     render();
   }
 
@@ -308,320 +334,335 @@
     render();
   }
 
-function calc(){
-  // Performance Pay = sum(job amount * payout%)
-  let performancePay = 0;
-  let jobHoursTotal = 0;
-  for (const j of jobs){
-    performancePay += j.amount * j.pct;
-    jobHoursTotal += j.hrs;
+  // -----------------------
+  // Calculations
+  // -----------------------
+  function calc(){
+    // Performance Pay = sum(job amount * payout%)
+    let performancePay = 0;
+    let jobHoursTotal = 0;
+    for (const j of jobs){
+      performancePay += j.amount * j.pct;
+      jobHoursTotal += j.hrs;
+    }
+
+    // Penalties total
+    let penTotal = 0;
+    for (const p of penalties) penTotal += p.amount;
+
+    // Base + bonus model
+    const clocked = num($("clocked").value);
+    const rate = num($("rate").value);
+
+    const basePay = clocked * rate;              // reference
+    const bonusGross = performancePay - basePay; // before penalties
+    const bonusNet = bonusGross - penTotal;      // deduct penalties
+    const totalPayout = basePay + bonusNet;      // = performancePay - penalties
+    const overallHourly = clocked > 0 ? totalPayout / clocked : 0;
+
+    // Man-hour metrics
+    const efficiency = clocked > 0 ? (jobHoursTotal / clocked) * 100 : 0; // percent
+
+    return {
+      performancePay,
+      jobHoursTotal,
+      penTotal,
+      clocked,
+      rate,
+      basePay,
+      bonusGross,
+      bonusNet,
+      totalPayout,
+      overallHourly,
+      efficiency
+    };
   }
 
-  // Penalties total
-  let penTotal = 0;
-  for (const p of penalties) penTotal += p.amount;
+  // -----------------------
+  // Render
+  // -----------------------
+  function render(){
+    const t = calc();
 
-  // Base + bonus model
-  const clocked = num($("clocked").value);
-  const rate = num($("rate").value);
+    // Jobs
+    $("jobs").innerHTML = "";
+    jobs.forEach((j, i) => {
+      const perf = j.amount * j.pct;
+      $("jobs").innerHTML += `
+        <tr>
+          <td>${esc(j.name)}</td>
+          <td class="right">${money(j.amount)}</td>
+          <td class="right">${(j.pct * 100).toFixed(2)}%</td>
+          <td class="right">${money(perf)}</td>
+          <td class="right">${j.hrs.toFixed(2)}</td>
+          <td class="right no-print">
+            <button class="small" type="button" onclick="removeJob(${i})">✕</button>
+          </td>
+        </tr>
+      `;
+    });
 
-  const basePay = clocked * rate;                    // reference
-  const bonusGross = performancePay - basePay;       // before penalties
-  const bonusNet = bonusGross - penTotal;            // deduct penalties
-  const totalPayout = basePay + bonusNet;            // = performancePay - penalties
-  const overallHourly = clocked > 0 ? totalPayout / clocked : 0;
+    $("perfTotal").textContent = money(t.performancePay);
+    $("jobHoursTotal").textContent = t.jobHoursTotal.toFixed(2);
 
-  const efficiency = clocked > 0 ? (jobHoursTotal / clocked) * 100 : 0;
+    // Penalties
+    $("penalties").innerHTML = "";
+    penalties.forEach((p, i) => {
+      $("penalties").innerHTML += `
+        <tr>
+          <td>${esc(p.note)}</td>
+          <td class="right">${money(p.amount)}</td>
+          <td class="right no-print">
+            <button class="small" type="button" onclick="removePenalty(${i})">✕</button>
+          </td>
+        </tr>
+      `;
+    });
 
-  return {
-    performancePay,
-    jobHoursTotal,
-    penTotal,
-    clocked,
-    rate,
-    basePay,
-    bonusGross,
-    bonusNet,
-    totalPayout,
-    overallHourly,
-    efficiency
-  };
-} // ✅ closes calc()
+    $("penTotalBadge").textContent = money(t.penTotal);
+    $("penTotalFoot").textContent = money(t.penTotal);
 
-function render(){
-  const t = calc();
+    // Summary
+    const diff = t.clocked - t.jobHoursTotal;
+    const hourlyClass = t.overallHourly >= t.rate ? "good" : "bad";
 
-  // Render jobs
-  $("jobs").innerHTML = "";
-  jobs.forEach((j, i) => {
-    const perf = j.amount * j.pct;
-    $("jobs").innerHTML += `
-      <tr>
-        <td>${esc(j.name)}</td>
-        <td class="right">${money(j.amount)}</td>
-        <td class="right">${(j.pct * 100).toFixed(2)}%</td>
-        <td class="right">${money(perf)}</td>
-        <td class="right">${j.hrs.toFixed(2)}</td>
-        <td class="right no-print"><button class="small" type="button" onclick="removeJob(${i})">✕</button></td>
-      </tr>
-    `;
-  });
+    const efficiencyClass =
+      t.efficiency >= 95 ? "good" :
+      t.efficiency >= 85 ? "muted" : "bad";
 
-  $("perfTotal").textContent = money(t.performancePay);
-  $("jobHoursTotal").textContent = t.jobHoursTotal.toFixed(2);
+    $("summary").innerHTML = `
+      Base pay (reference): <b>${money(t.basePay)}</b><br>
+      Performance pay: <b>${money(t.performancePay)}</b><br>
+      Performance bonus (before penalties): <b class="${t.bonusGross >= 0 ? "good" : "bad"}">${money(t.bonusGross)}</b><br>
+      Penalties deducted: <b class="bad">-${money(t.penTotal)}</b><br>
+      Performance bonus (net): <b class="${t.bonusNet >= 0 ? "good" : "bad"}">${money(t.bonusNet)}</b>
+      <hr>
+      <b>Total payout:</b> ${money(t.totalPayout)}<br>
+      <b>Overall hourly pay:</b> <b class="${hourlyClass}">${money(t.overallHourly)}/hr</b>
+      <br><br>
 
-  // Render penalties
-  $("penalties").innerHTML = "";
-  penalties.forEach((p, i) => {
-    $("penalties").innerHTML += `
-      <tr>
-        <td>${esc(p.note)}</td>
-        <td class="right">${money(p.amount)}</td>
-        <td class="right no-print"><button class="small" type="button" onclick="removePenalty(${i})">✕</button></td>
-      </tr>
-    `;
-  });
-
-  $("penTotalBadge").textContent = money(t.penTotal);
-  $("penTotalFoot").textContent = money(t.penTotal);
-
-  // Summary
-  const diff = t.clocked - t.jobHoursTotal;
-  const hourlyClass = t.overallHourly >= t.rate ? "good" : "bad";
-
-  const efficiencyClass =
-    t.efficiency >= 95 ? "good" :
-    t.efficiency >= 85 ? "muted" : "bad";
-
-  $("summary").innerHTML = `
-    Base pay (reference): <b>${money(t.basePay)}</b><br>
-    Performance pay: <b>${money(t.performancePay)}</b><br>
-    Performance bonus (before penalties): <b class="${t.bonusGross >= 0 ? "good" : "bad"}">${money(t.bonusGross)}</b><br>
-    Penalties deducted: <b class="bad">-${money(t.penTotal)}</b><br>
-    Performance bonus (net): <b class="${t.bonusNet >= 0 ? "good" : "bad"}">${money(t.bonusNet)}</b>
-    <hr>
-    <b>Total payout:</b> ${money(t.totalPayout)}<br>
-    <b>Overall hourly pay:</b> <b class="${hourlyClass}">${money(t.overallHourly)}/hr</b>
-    <br><br>
-
-    <b>Man-hour check</b><br>
-    Job man-hours: <b>${t.jobHoursTotal.toFixed(2)}</b><br>
-    Overall man-hours: <b>${t.clocked.toFixed(2)}</b><br>
-    Job efficiency: <b class="${efficiencyClass}">${t.efficiency.toFixed(1)}%</b><br>
-    <span class="muted">Diff (overall - job): ${diff.toFixed(2)} hrs</span>
-  `;
-}
-
-</b>
-
-      const efficiencyClass =
-  t.efficiency >= 95 ? "good" :
-  t.efficiency >= 85 ? "muted" : "bad";
-
+      <b>Man-hour check</b><br>
+      Job man-hours: <b>${t.jobHoursTotal.toFixed(2)}</b><br>
+      Overall man-hours: <b>${t.clocked.toFixed(2)}</b><br>
+      Job efficiency (job ÷ overall): <b class="${efficiencyClass}">${t.efficiency.toFixed(1)}%</b><br>
+      <span class="muted">Diff (overall − job): ${diff.toFixed(2)} hrs</span>
     `;
   }
 
-  function resetAll(){
-    if(!confirm("Clear all jobs, penalties, and values?")) return;
-    jobs = [];
-    penalties = [];
-    document.querySelectorAll("input").forEach(i => i.value = "");
+  // -----------------------
+  // Export helpers
+  // -----------------------
+  function filenameBase(){
+    const emp = ($("emp").value || "").trim().replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "");
+    const per = ($("period").value || "").trim().replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "");
+    const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
+    return ["performance-pay", emp || "employee", per || "period", stamp].join("_");
+  }
+
+  function downloadCSV(){
+    const t = calc();
+
+    const rows = [];
+    rows.push(["Employee", $("emp").value || ""]);
+    rows.push(["Pay Period", $("period").value || ""]);
+    rows.push([]);
+    rows.push(["Base Hourly Rate", t.rate]);
+    rows.push(["Overall Clocked Hours", t.clocked]);
+    rows.push(["Base Pay (reference)", t.basePay]);
+    rows.push(["Performance Pay", t.performancePay]);
+    rows.push(["Penalties Total", t.penTotal]);
+    rows.push(["Performance Bonus (gross)", t.bonusGross]);
+    rows.push(["Performance Bonus (net)", t.bonusNet]);
+    rows.push(["Total Payout", t.totalPayout]);
+    rows.push(["Overall Hourly Pay", t.overallHourly]);
+    rows.push([]);
+    rows.push(["Man-hours"]);
+    rows.push(["Job man-hours", t.jobHoursTotal]);
+    rows.push(["Overall man-hours", t.clocked]);
+    rows.push(["Job efficiency (%)", t.efficiency]);
+    rows.push([]);
+    rows.push(["JOBS"]);
+    rows.push(["Job", "Job Amount", "Payout %", "Performance Pay", "Job Hours (compare only)"]);
+    jobs.forEach(j => rows.push([j.name, j.amount, (j.pct*100).toFixed(2)+"%", (j.amount*j.pct), j.hrs]));
+    rows.push([]);
+    rows.push(["PENALTIES"]);
+    rows.push(["Note", "Amount"]);
+    penalties.forEach(p => rows.push([p.note, p.amount]));
+
+    const csv = rows.map(r =>
+      r.map(v => `"${String(v ?? "").replace(/"/g,'""')}"`).join(",")
+    ).join("\n");
+
+    const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${filenameBase()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(url);
+  }
+
+  function downloadJSON(){
+    const t = calc();
+
+    const payload = {
+      employee: ($("emp").value || "").trim(),
+      payPeriod: ($("period").value || "").trim(),
+      baseHourlyRate: t.rate,
+      overallClockedHours: t.clocked,
+      totals: {
+        basePayReference: t.basePay,
+        performancePay: t.performancePay,
+        penaltiesTotal: t.penTotal,
+        performanceBonusGross: t.bonusGross,
+        performanceBonusNet: t.bonusNet,
+        totalPayout: t.totalPayout,
+        overallHourlyPay: t.overallHourly
+      },
+      manHours: {
+        jobManHours: t.jobHoursTotal,
+        overallManHours: t.clocked,
+        jobEfficiencyPercent: t.efficiency
+      },
+      jobs: jobs.map(j => ({
+        name: j.name,
+        jobAmount: j.amount,
+        payoutPercent: +(j.pct * 100).toFixed(4),
+        performancePay: +(j.amount * j.pct).toFixed(2),
+        jobHoursCompareOnly: j.hrs
+      })),
+      penalties: penalties.map(p => ({ note: p.note, amount: p.amount })),
+      generatedAt: new Date().toISOString()
+    };
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${filenameBase()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(url);
+  }
+
+  // -----------------------
+  // Save/Load runs (localStorage)
+  // -----------------------
+  const STORAGE_KEY = "performancePayRuns_v1";
+
+  function getAllRuns(){
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+    catch { return {}; }
+  }
+
+  function saveAllRuns(runs){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(runs));
+  }
+
+  function currentRunKey(){
+    const emp = ($("emp").value || "").trim();
+    const period = ($("period").value || "").trim();
+    if (!emp || !period) return null;
+    return `${emp}__${period}`;
+  }
+
+  function saveRun(){
+    const key = currentRunKey();
+    if (!key) return alert("Enter employee name and pay period before saving.");
+
+    const t = calc();
+    const runs = getAllRuns();
+
+    runs[key] = {
+      employee: $("emp").value,
+      period: $("period").value,
+      rate: t.rate,
+      clocked: t.clocked,
+      jobs,
+      penalties,
+      savedAt: new Date().toISOString()
+    };
+
+    saveAllRuns(runs);
+    refreshRunList();
+    alert("Saved.");
+  }
+
+  function loadRun(key){
+    if (!key) return;
+
+    const runs = getAllRuns();
+    const r = runs[key];
+    if (!r) return;
+
+    if (!confirm(`Load saved run for ${r.employee} (${r.period})? Unsaved changes will be lost.`)) {
+      // reset select UI to blank if user cancels
+      $("savedRuns").value = "";
+      return;
+    }
+
+    $("emp").value = r.employee || "";
+    $("period").value = r.period || "";
+    $("rate").value = r.rate ?? "";
+    $("clocked").value = r.clocked ?? "";
+
+    jobs = Array.isArray(r.jobs) ? r.jobs : [];
+    penalties = Array.isArray(r.penalties) ? r.penalties : [];
+
     render();
   }
 
-  // Recalc when base inputs change
-  ["emp","period","rate","clocked"].forEach(id => $(id).addEventListener("input", render));
+  function refreshRunList(){
+    const select = $("savedRuns");
+    if (!select) return;
 
-  // initial render
-  render();
-  function filenameBase(){
-  const emp = ($("emp").value || "").trim().replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "");
-  const per = ($("period").value || "").trim().replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "");
-  const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
-  const bits = ["performance-pay", emp || "employee", per || "period", stamp].filter(Boolean);
-  return bits.join("_");
-}
+    const runs = getAllRuns();
+    select.innerHTML = `<option value="">— Select saved run —</option>`;
 
-function downloadCSV(){
-  const t = calc();
-
-  // Build rows for a payroll-friendly export
-  const rows = [];
-  rows.push(["Employee", $("emp").value || ""]);
-  rows.push(["Pay Period", $("period").value || ""]);
-  rows.push([]);
-
-  rows.push(["Base Hourly Rate", t.rate]);
-  rows.push(["Overall Clocked Hours", t.clocked]);
-  rows.push(["Base Pay (reference)", t.basePay]);
-  rows.push(["Performance Pay", t.performancePay]);
-  rows.push(["Penalties Total", t.penTotal]);
-  rows.push(["Performance Bonus (gross)", t.bonusGross]);
-  rows.push(["Performance Bonus (net)", t.bonusNet]);
-  rows.push(["Total Payout", t.totalPayout]);
-  rows.push(["Overall Hourly Pay", t.overallHourly]);
-  rows.push([]);
-
-  rows.push(["JOBS"]);
-  rows.push(["Job", "Job Amount", "Payout %", "Performance Pay", "Job Hours (compare only)"]);
-  jobs.forEach(j => {
-    rows.push([
-      j.name,
-      j.amount,
-      (j.pct * 100).toFixed(2) + "%",
-      (j.amount * j.pct),
-      j.hrs
-    ]);
-  });
-
-  rows.push([]);
-  rows.push(["PENALTIES"]);
-  rows.push(["Note", "Amount"]);
-  penalties.forEach(p => {
-    rows.push([p.note, p.amount]);
-  });
-
-  const csv = rows.map(r =>
-    r.map(v => `"${String(v ?? "").replace(/"/g,'""')}"`).join(",")
-  ).join("\n");
-
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${filenameBase()}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-
-  URL.revokeObjectURL(url);
-}
-
-function downloadJSON(){
-  const t = calc();
-
-  const payload = {
-    employee: ($("emp").value || "").trim(),
-    payPeriod: ($("period").value || "").trim(),
-    baseHourlyRate: t.rate,
-    overallClockedHours: t.clocked,
-    totals: {
-      basePayReference: t.basePay,
-      performancePay: t.performancePay,
-      penaltiesTotal: t.penTotal,
-      performanceBonusGross: t.bonusGross,
-      performanceBonusNet: t.bonusNet,
-      totalPayout: t.totalPayout,
-      overallHourlyPay: t.overallHourly
-    },
-    jobs: jobs.map(j => ({
-      name: j.name,
-      jobAmount: j.amount,
-      payoutPercent: +(j.pct * 100).toFixed(4),
-      performancePay: +(j.amount * j.pct).toFixed(2),
-      jobHoursCompareOnly: j.hrs
-    })),
-    penalties: penalties.map(p => ({
-      note: p.note,
-      amount: p.amount
-    })),
-    generatedAt: new Date().toISOString()
-  };
-
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${filenameBase()}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-
-  URL.revokeObjectURL(url);
-}
-const STORAGE_KEY = "performancePayRuns";
-
-function getAllRuns(){
-  return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-}
-
-function saveAllRuns(runs){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(runs));
-}
-
-function currentRunKey(){
-  const emp = ($("emp").value || "").trim();
-  const period = ($("period").value || "").trim();
-  if(!emp || !period) return null;
-  return `${emp}__${period}`;
-}
-
-function saveRun(){
-  const key = currentRunKey();
-  if(!key) return alert("Enter employee name and pay period before saving.");
-
-  const t = calc();
-  const runs = getAllRuns();
-
-  runs[key] = {
-    employee: $("emp").value,
-    period: $("period").value,
-    rate: t.rate,
-    clocked: t.clocked,
-    jobs,
-    penalties,
-    savedAt: new Date().toISOString()
-  };
-
-  saveAllRuns(runs);
-  refreshRunList();
-  alert("Pay run saved.");
-}
-
-function loadRun(key){
-  if(!key) return;
-
-  const runs = getAllRuns();
-  const r = runs[key];
-  if(!r) return;
-
-  if(!confirm(`Load saved run for ${r.employee} (${r.period})? Unsaved changes will be lost.`)) return;
-
-  $("emp").value = r.employee;
-  $("period").value = r.period;
-  $("rate").value = r.rate;
-  $("clocked").value = r.clocked;
-
-  jobs = r.jobs || [];
-  penalties = r.penalties || [];
-
-  render();
-}
-
-function refreshRunList(){
-  const select = $("savedRuns");
-  if(!select) return;
-
-  const runs = getAllRuns();
-  select.innerHTML = `<option value="">— Select saved run —</option>`;
-
-  Object.keys(runs)
-    .sort()
-    .forEach(key=>{
+    Object.keys(runs).sort().forEach(key => {
       const r = runs[key];
       const opt = document.createElement("option");
       opt.value = key;
       opt.textContent = `${r.employee} — ${r.period}`;
       select.appendChild(opt);
     });
-}
-refreshRunList();
+  }
 
+  // -----------------------
+  // Clear
+  // -----------------------
+  function resetAll(){
+    if (!confirm("Clear all jobs, penalties, and values?")) return;
+    jobs = [];
+    penalties = [];
+    document.querySelectorAll("input").forEach(i => i.value = "");
+    if ($("savedRuns")) $("savedRuns").value = "";
+    render();
+  }
+
+  // -----------------------
+  // Re-render on base input changes
+  // -----------------------
+  ["emp","period","rate","clocked"].forEach(id => {
+    const el = $(id);
+    if (el) el.addEventListener("input", render);
+  });
+
+  // Init
+  refreshRunList();
+  render();
 </script>
+
 </body>
 </html>
+
 
 
 
