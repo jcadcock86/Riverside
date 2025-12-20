@@ -378,12 +378,7 @@
 
   // initial render
   render();
-</script>
-</body>
-</html>
-
-</script>
-function filenameBase(){
+  function filenameBase(){
   const emp = ($("emp").value || "").trim().replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "");
   const per = ($("period").value || "").trim().replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "");
   const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
@@ -490,4 +485,9 @@ function downloadJSON(){
 
   URL.revokeObjectURL(url);
 }
+
 </script>
+</body>
+</html>
+
+
