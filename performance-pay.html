@@ -308,111 +308,110 @@
     render();
   }
 
-  function calc(){
-    // Performance Pay = sum(job amount * payout%)
-    let performancePay = 0;
-    let jobHoursTotal = 0;
-    for (const j of jobs){
-      performancePay += j.amount * j.pct;
-      jobHoursTotal += j.hrs;
-    }
+function calc(){
+  // Performance Pay = sum(job amount * payout%)
+  let performancePay = 0;
+  let jobHoursTotal = 0;
+  for (const j of jobs){
+    performancePay += j.amount * j.pct;
+    jobHoursTotal += j.hrs;
+  }
 
-    // Penalties total
-    let penTotal = 0;
-    for (const p of penalties) penTotal += p.amount;
+  // Penalties total
+  let penTotal = 0;
+  for (const p of penalties) penTotal += p.amount;
 
-    // Base + bonus model
-    const clocked = num($("clocked").value);
-    const rate = num($("rate").value);
+  // Base + bonus model
+  const clocked = num($("clocked").value);
+  const rate = num($("rate").value);
 
-    const basePay = clocked * rate;                    // reference
-    const bonusGross = performancePay - basePay;       // before penalties
-    const bonusNet = bonusGross - penTotal;            // deduct penalties
-    const totalPayout = basePay + bonusNet;            // = performancePay - penalties
-    const overallHourly = clocked > 0 ? totalPayout / clocked : 0;
-const efficiency =
-  clocked > 0 ? (jobHoursTotal / clocked) * 100 : 0;
+  const basePay = clocked * rate;                    // reference
+  const bonusGross = performancePay - basePay;       // before penalties
+  const bonusNet = bonusGross - penTotal;            // deduct penalties
+  const totalPayout = basePay + bonusNet;            // = performancePay - penalties
+  const overallHourly = clocked > 0 ? totalPayout / clocked : 0;
 
- return {
-  performancePay,
-  jobHoursTotal,
-  penTotal,
-  clocked,
-  rate,
-  basePay,
-  bonusGross,
-  bonusNet,
-  totalPayout,
-  overallHourly,
-  efficiency
-};
+  const efficiency = clocked > 0 ? (jobHoursTotal / clocked) * 100 : 0;
 
+  return {
+    performancePay,
+    jobHoursTotal,
+    penTotal,
+    clocked,
+    rate,
+    basePay,
+    bonusGross,
+    bonusNet,
+    totalPayout,
+    overallHourly,
+    efficiency
+  };
+} // ✅ closes calc()
 
-  function render(){
-    const t = calc();
+function render(){
+  const t = calc();
 
-    // Render jobs
-    $("jobs").innerHTML = "";
-    jobs.forEach((j, i) => {
-      const perf = j.amount * j.pct;
-      $("jobs").innerHTML += `
-        <tr>
-          <td>${esc(j.name)}</td>
-          <td class="right">${money(j.amount)}</td>
-          <td class="right">${(j.pct * 100).toFixed(2)}%</td>
-          <td class="right">${money(perf)}</td>
-          <td class="right">${j.hrs.toFixed(2)}</td>
-          <td class="right no-print"><button class="small" type="button" onclick="removeJob(${i})">✕</button></td>
-        </tr>
-      `;
-    });
+  // Render jobs
+  $("jobs").innerHTML = "";
+  jobs.forEach((j, i) => {
+    const perf = j.amount * j.pct;
+    $("jobs").innerHTML += `
+      <tr>
+        <td>${esc(j.name)}</td>
+        <td class="right">${money(j.amount)}</td>
+        <td class="right">${(j.pct * 100).toFixed(2)}%</td>
+        <td class="right">${money(perf)}</td>
+        <td class="right">${j.hrs.toFixed(2)}</td>
+        <td class="right no-print"><button class="small" type="button" onclick="removeJob(${i})">✕</button></td>
+      </tr>
+    `;
+  });
 
-    $("perfTotal").textContent = money(t.performancePay);
-    $("jobHoursTotal").textContent = t.jobHoursTotal.toFixed(2);
+  $("perfTotal").textContent = money(t.performancePay);
+  $("jobHoursTotal").textContent = t.jobHoursTotal.toFixed(2);
 
-    // Render penalties
-    $("penalties").innerHTML = "";
-    penalties.forEach((p, i) => {
-      $("penalties").innerHTML += `
-        <tr>
-          <td>${esc(p.note)}</td>
-          <td class="right">${money(p.amount)}</td>
-          <td class="right no-print"><button class="small" type="button" onclick="removePenalty(${i})">✕</button></td>
-        </tr>
-      `;
-    });
+  // Render penalties
+  $("penalties").innerHTML = "";
+  penalties.forEach((p, i) => {
+    $("penalties").innerHTML += `
+      <tr>
+        <td>${esc(p.note)}</td>
+        <td class="right">${money(p.amount)}</td>
+        <td class="right no-print"><button class="small" type="button" onclick="removePenalty(${i})">✕</button></td>
+      </tr>
+    `;
+  });
 
-    $("penTotalBadge").textContent = money(t.penTotal);
-    $("penTotalFoot").textContent = money(t.penTotal);
+  $("penTotalBadge").textContent = money(t.penTotal);
+  $("penTotalFoot").textContent = money(t.penTotal);
 
-    // Summary
-    const diff = t.clocked - t.jobHoursTotal;
-    const hourlyClass = t.overallHourly >= t.rate ? "good" : "bad";
-const diff = t.clocked - t.jobHoursTotal;
-const hourlyClass = t.overallHourly >= t.rate ? "good" : "bad";
+  // Summary
+  const diff = t.clocked - t.jobHoursTotal;
+  const hourlyClass = t.overallHourly >= t.rate ? "good" : "bad";
 
-const efficiencyClass =
-  t.efficiency >= 95 ? "good" :
-  t.efficiency >= 85 ? "muted" : "bad";
+  const efficiencyClass =
+    t.efficiency >= 95 ? "good" :
+    t.efficiency >= 85 ? "muted" : "bad";
 
+  $("summary").innerHTML = `
+    Base pay (reference): <b>${money(t.basePay)}</b><br>
+    Performance pay: <b>${money(t.performancePay)}</b><br>
+    Performance bonus (before penalties): <b class="${t.bonusGross >= 0 ? "good" : "bad"}">${money(t.bonusGross)}</b><br>
+    Penalties deducted: <b class="bad">-${money(t.penTotal)}</b><br>
+    Performance bonus (net): <b class="${t.bonusNet >= 0 ? "good" : "bad"}">${money(t.bonusNet)}</b>
+    <hr>
+    <b>Total payout:</b> ${money(t.totalPayout)}<br>
+    <b>Overall hourly pay:</b> <b class="${hourlyClass}">${money(t.overallHourly)}/hr</b>
+    <br><br>
 
-    $("summary").innerHTML = `
-      Base pay (reference): <b>${money(t.basePay)}</b><br>
-      Performance pay: <b>${money(t.performancePay)}</b><br>
-      Performance bonus (before penalties): <b class="${t.bonusGross >= 0 ? "good" : "bad"}">${money(t.bonusGross)}</b><br>
-      Penalties deducted: <b class="bad">-${money(t.penTotal)}</b><br>
-      Performance bonus (net): <b class="${t.bonusNet >= 0 ? "good" : "bad"}">${money(t.bonusNet)}</b>
-      <hr>
-      <b>Total payout:</b> ${money(t.totalPayout)}<br>
-      <b>Overall hourly pay:</b> <b class="${hourlyClass}">${money(t.overallHourly)}/hr</b>
-      <br><br>
-      <br><br>
-<b>Man-hour check</b><br>
-Job man-hours: <b>${t.jobHoursTotal.toFixed(2)}</b><br>
-Overall man-hours: <b>${t.clocked.toFixed(2)}</b><br>
-Job efficiency:
-<b class="${efficiencyClass}">
-  ${t.efficiency.toFixed(1)}%
+    <b>Man-hour check</b><br>
+    Job man-hours: <b>${t.jobHoursTotal.toFixed(2)}</b><br>
+    Overall man-hours: <b>${t.clocked.toFixed(2)}</b><br>
+    Job efficiency: <b class="${efficiencyClass}">${t.efficiency.toFixed(1)}%</b><br>
+    <span class="muted">Diff (overall - job): ${diff.toFixed(2)} hrs</span>
+  `;
+}
+
 </b>
 
       const efficiencyClass =
