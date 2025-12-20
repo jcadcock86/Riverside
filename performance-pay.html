@@ -494,6 +494,82 @@ function downloadJSON(){
 
   URL.revokeObjectURL(url);
 }
+const STORAGE_KEY = "performancePayRuns";
+
+function getAllRuns(){
+  return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+}
+
+function saveAllRuns(runs){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(runs));
+}
+
+function currentRunKey(){
+  const emp = ($("emp").value || "").trim();
+  const period = ($("period").value || "").trim();
+  if(!emp || !period) return null;
+  return `${emp}__${period}`;
+}
+
+function saveRun(){
+  const key = currentRunKey();
+  if(!key) return alert("Enter employee name and pay period before saving.");
+
+  const t = calc();
+  const runs = getAllRuns();
+
+  runs[key] = {
+    employee: $("emp").value,
+    period: $("period").value,
+    rate: t.rate,
+    clocked: t.clocked,
+    jobs,
+    penalties,
+    savedAt: new Date().toISOString()
+  };
+
+  saveAllRuns(runs);
+  refreshRunList();
+  alert("Pay run saved.");
+}
+
+function loadRun(key){
+  if(!key) return;
+
+  const runs = getAllRuns();
+  const r = runs[key];
+  if(!r) return;
+
+  if(!confirm(`Load saved run for ${r.employee} (${r.period})? Unsaved changes will be lost.`)) return;
+
+  $("emp").value = r.employee;
+  $("period").value = r.period;
+  $("rate").value = r.rate;
+  $("clocked").value = r.clocked;
+
+  jobs = r.jobs || [];
+  penalties = r.penalties || [];
+
+  render();
+}
+
+function refreshRunList(){
+  const select = $("savedRuns");
+  if(!select) return;
+
+  const runs = getAllRuns();
+  select.innerHTML = `<option value="">— Select saved run —</option>`;
+
+  Object.keys(runs)
+    .sort()
+    .forEach(key=>{
+      const r = runs[key];
+      const opt = document.createElement("option");
+      opt.value = key;
+      opt.textContent = `${r.employee} — ${r.period}`;
+      select.appendChild(opt);
+    });
+}
 
 </script>
 </body>
