@@ -112,6 +112,15 @@
   <button class="secondary" type="button" onclick="downloadJSON()">Download JSON</button>
   <button class="secondary" type="button" onclick="resetAll()">Clear</button>
 </div>
+<div style="margin-top:10px" class="no-print">
+  <label>Saved pay runs</label>
+  <select id="savedRuns" onchange="loadRun(this.value)">
+    <option value="">— Select saved run —</option>
+  </select>
+  <div class="muted" style="margin-top:6px">
+    Saved locally in this browser
+  </div>
+</div>
 
 
     </div>
