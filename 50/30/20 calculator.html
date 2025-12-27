@@ -1,1 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>50/30/20 Rule Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .calculator {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .results {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+        
+        .results h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 12px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #ccc;
+        }
+        
+        .metric.success {
+            border-left-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .metric.warning {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+        
+        .metric.danger {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+        
+        .metric-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .metric-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .metric-target {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .status-badge.success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .status-badge.warning {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .status-badge.danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .summary {
+            margin-top: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .summary h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .summary-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="header">
+            <h1>The 50/30/20 Rule Calculator</h1>
+            <p>Track your business health: 50% Gross Margin | 30% Labor | 20% Net Profit</p>
+        </div>
+        
+        <div class="content">
+            <div class="input-section">
+                <div class="input-group">
+                    <label>Total Revenue ($)</label>
+                    <input type="number" id="revenue" placeholder="Enter total revenue" value="100000">
+                </div>
+                
+                <div class="input-group">
+                    <label>Labor Costs (COGS) ($)</label>
+                    <input type="number" id="labor" placeholder="Enter labor costs" value="30000">
+                </div>
+                
+                <div class="input-group">
+                    <label>Cost of Goods Sold (Fuel, supplies, materials, etc.) ($)</label>
+                    <input type="number" id="cogs" placeholder="Enter COGS" value="45000">
+                </div>
+                
+                <div class="input-group">
+                    <label>Other Operating Expenses (insurance, shop rent, software subscriptions, etc.) ($)</label>
+                    <input type="number" id="expenses" placeholder="Enter other expenses" value="15000">
+                </div>
+            </div>
+            
+            <div class="results" id="results">
+                <!-- Results will be inserted here -->
+            </div>
+        </div>
+    </div>
 
+    <script>
+        function formatCurrency(num) {
+            return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+        
+        function formatPercent(num) {
+            return num.toFixed(1) + '%';
+        }
+        
+        function getStatus(actual, target, isHigherBetter = true) {
+            const diff = Math.abs(actual - target);
+            if (isHigherBetter) {
+                if (actual >= target) return 'success';
+                if (actual >= target - 5) return 'warning';
+                return 'danger';
+            } else {
+                if (actual <= target) return 'success';
+                if (actual <= target + 5) return 'warning';
+                return 'danger';
+            }
+        }
+        
+        function getStatusText(status) {
+            return status === 'success' ? '✓ On Track' : status === 'warning' ? '⚠ Close' : '✗ Below Target';
+        }
+        
+        function calculate() {
+            const revenue = parseFloat(document.getElementById('revenue').value) || 0;
+            const cogs = parseFloat(document.getElementById('cogs').value) || 0;
+            const labor = parseFloat(document.getElementById('labor').value) || 0;
+            const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+            
+            if (revenue === 0) {
+                document.getElementById('results').innerHTML = '<p style="text-align: center; color: #666;">Enter your revenue to see results</p>';
+                return;
+            }
+            
+            const grossProfit = revenue - cogs;
+            const grossMargin = (grossProfit / revenue) * 100;
+            const laborPercent = (labor / revenue) * 100;
+            
+            const totalExpenses = cogs + labor + expenses;
+            const netProfit = revenue - totalExpenses;
+            const netMargin = (netProfit / revenue) * 100;
+            
+            const grossStatus = getStatus(grossMargin, 50);
+            const laborStatus = getStatus(laborPercent, 30, false);
+            const netStatus = getStatus(netMargin, 20);
+            
+            const allSuccess = grossStatus === 'success' && laborStatus === 'success' && netStatus === 'success';
+            const anyDanger = grossStatus === 'danger' || laborStatus === 'danger' || netStatus === 'danger';
+            
+            const html = `
+                <h2>Your Results</h2>
+                
+                <div class="metric ${grossStatus}">
+                    <div>
+                        <div class="metric-label">Gross Margin</div>
+                        <div class="metric-target">Target: ≥ 50%</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="metric-value">${formatPercent(grossMargin)}</div>
+                        <span class="status-badge ${grossStatus}">${getStatusText(grossStatus)}</span>
+                    </div>
+                </div>
+                
+                <div class="metric ${laborStatus}">
+                    <div>
+                        <div class="metric-label">Labor % of Revenue</div>
+                        <div class="metric-target">Target: ≤ 30%</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="metric-value">${formatPercent(laborPercent)}</div>
+                        <span class="status-badge ${laborStatus}">${getStatusText(laborStatus)}</span>
+                    </div>
+                </div>
+                
+                <div class="metric ${netStatus}">
+                    <div>
+                        <div class="metric-label">Net Profit Margin</div>
+                        <div class="metric-target">Target: ≥ 20%</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="metric-value">${formatPercent(netMargin)}</div>
+                        <span class="status-badge ${netStatus}">${getStatusText(netStatus)}</span>
+                    </div>
+                </div>
+                
+                <div class="summary">
+                    <div class="summary-icon">${allSuccess ? '🎉' : anyDanger ? '⚠️' : '📊'}</div>
+                    <h3>${allSuccess ? 'Excellent! Meeting All Targets' : anyDanger ? 'Action Needed' : 'Almost There!'}</h3>
+                    <p style="margin-top: 10px; color: #666;">
+                        Net Profit: <strong>${formatCurrency(netProfit)}</strong>
+                    </p>
+                </div>
+            `;
+            
+            document.getElementById('results').innerHTML = html;
+        }
+        
+        document.getElementById('revenue').addEventListener('input', calculate);
+        document.getElementById('cogs').addEventListener('input', calculate);
+        document.getElementById('labor').addEventListener('input', calculate);
+        document.getElementById('expenses').addEventListener('input', calculate);
+        
+        calculate();
+    </script>
+</body>
+</html>
